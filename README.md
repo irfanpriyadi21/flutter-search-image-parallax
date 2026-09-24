@@ -127,4 +127,4 @@ lib/
 ---
 
 ## 📄 Lisensi & Kredit
-- Gambar bersumber dari fotografer [Unsplash](https://unsplash.com) melalui CDN resolusi tinggi.
+- Gambar bersumber dari (https://pixabay.com/api/docs).
