@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_parallax_search/models/image_item.dart';
 import 'package:image_parallax_search/screens/wallpaper_preview_screen.dart';
 import 'package:image_parallax_search/services/image_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_parallax_search/widgets/download_progress_dialog.dart';
 
 void main() {
@@ -14,6 +15,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    dotenv.loadFromString(envString: 'PIXABAY_API_KEY=17389955-eb167990fe4e1dae1ad3932a1');
   });
 
   test('ImageService fetchImages returns Pixabay results with configured key', () async {

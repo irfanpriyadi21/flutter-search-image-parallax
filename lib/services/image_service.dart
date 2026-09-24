@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/image_item.dart';
@@ -8,8 +9,24 @@ class ImageService extends ChangeNotifier {
   static final ImageService instance = ImageService._internal();
   ImageService._internal();
 
-  static const String defaultPixabayApiKey = '17389955-eb167990fe4e1dae1ad3932a1';
-  String _pixabayApiKey = defaultPixabayApiKey;
+  /// Gets the Pixabay API key from .env (flutter_dotenv) or --dart-define environment variables
+  static String get defaultPixabayApiKey {
+    try {
+      final envKey = dotenv.env['PIXABAY_API_KEY'];
+      if (envKey != null && envKey.trim().isNotEmpty) {
+        return envKey.trim();
+      }
+    } catch (_) {}
+
+    const dartDefineKey = String.fromEnvironment('PIXABAY_API_KEY');
+    if (dartDefineKey.isNotEmpty) {
+      return dartDefineKey;
+    }
+
+    return '';
+  }
+
+  String _pixabayApiKey = '';
   http.Client _httpClient = http.Client();
 
   @visibleForTesting
@@ -21,7 +38,7 @@ class ImageService extends ChangeNotifier {
   bool _isInitialized = false;
 
   Set<String> get favoriteIds => _favoriteIds;
-  String get pixabayApiKey => _pixabayApiKey;
+  String get pixabayApiKey => _pixabayApiKey.isNotEmpty ? _pixabayApiKey : defaultPixabayApiKey;
 
   Future<void> initialize() async {
     if (_isInitialized) return;
@@ -112,7 +129,7 @@ class ImageService extends ChangeNotifier {
     int perPage = 24,
   }) async {
     // 1. Try fetching directly from Pixabay API using the configured key
-    if (_pixabayApiKey.isNotEmpty) {
+    if (pixabayApiKey.isNotEmpty) {
       try {
         final results = await _fetchFromPixabay(
           query: query,
@@ -205,7 +222,7 @@ class ImageService extends ChangeNotifier {
     }
 
     final queryParams = <String, String>{
-      'key': _pixabayApiKey,
+      'key': pixabayApiKey,
       'q': searchTerm,
       'image_type': 'photo',
       'safesearch': 'true',
